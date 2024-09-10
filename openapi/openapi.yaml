@@ -1,0 +1,213 @@
+openapi: 3.0.3
+
+info:
+  title: Fumode API
+  description: |
+    API for Fumode furniture app, handling users, furniture, 
+    reviews, carts, and wishlists.
+  version: 1.0.0
+
+servers:
+  - url: https://api.fumode.app/v1
+
+tags:
+  - name: User
+  - name: Furniture
+  - name: Review
+  - name: Cart
+  - name: Wishlist
+
+paths:
+  /users:
+    post:
+      summary: Register a new user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - User
+      summary: Get a specific user
+      responses:
+        200:
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          description: User not found
+
+  /users/login:
+    post:
+      tags:
+        - User
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email address of the user
+                password:
+                  type: string
+                  format: password
+                  description: Password of the user
+      responses:
+        200:
+          description: User login successfully
+        401:
+          description: Invalid credentials
+
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the user
+        email:
+          type: string
+          format: email
+          description: User email address
+        name:
+          type: string
+          description: The full name of the user
+        password:
+          type: string
+          description: The password of the user
+        created_at:
+          type: string
+          format: time
+          description: The user account creation date
+
+    Furniture:
+      type: object
+      properties:
+        furniture_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the furniture
+        name:
+          type: string
+          description: The name of the furniture
+        category:
+          type: string
+          description: The category to which the furniture belong
+        price:
+          type: number
+          description: The price of the furniture
+        details:
+          type: string
+          description: The details of the furniture
+        stock:
+          type: integer
+          description: The number of units available
+        images:
+          type: array
+          description: A list of image urls of the furniture
+          items:
+            type: string
+
+    CartItem:
+      type: object
+      properties:
+        furniture_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the furniture
+        quantity:
+          type: integer
+          minimum: 1
+          description: The quantity of furniture item
+
+    Cart:
+      type: object
+      properties:
+        cart_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the cart
+        user_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for user
+        furniture_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+
+    Wishlist:
+      type: object
+      properties:
+        wishlist_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the wish list
+        user_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the user
+        furniture_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Furniture'
+
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the review_id
+        user_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the user who submitted the review
+        furniture_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the furniture being reviewed
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Number rating given to the furniture (1-5)
+        comment:
+          type: string
+          description: User's review text or feedback
+        timestamp:
+          type: string
+          format: date
+          description: Date and time the review was submitted
+
+
+
