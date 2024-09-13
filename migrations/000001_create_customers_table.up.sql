@@ -4,5 +4,7 @@ CREATE TABLE IF NOT EXISTS customers(
     email citext UNIQUE NOT NULL,
     password BYTEA,
     address TEXT,
-    phone_number VARCHAR(100)
+    phone_number VARCHAR(100),
+    created_at TIMESTAMP(0) WITH TIMEZONE NOT NULL DEFAULT NOW(),
+    version int NOT NULL DEFAULT 1
 );
