@@ -23,7 +23,7 @@ type CustomerModel struct {
 // Insert a new customer record to the database.
 func (c CustomerModel) Insert(customer *Customer) error {
 	query := `
-		INSERT INTO customers(name, email, password, address, phone_number)
+		INSERT INTO customer(name, email, password, address, phone_number)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING customer_id, created_at, version`
 
