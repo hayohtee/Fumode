@@ -8,7 +8,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const version = "1.0.0"
 
 func main() {
 	var cfg config
