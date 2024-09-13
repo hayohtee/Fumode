@@ -13,9 +13,9 @@ type config struct {
 		// The data source name.
 		dsn string
 		// The maximum number of open connections.
-		maxOpenConns int
+		maxOpenConn int
 		// The maximum number of idle connections.
-		maxIdleConns int
+		maxIdleConn int
 		// The time duration for idle connections in string ("5s" - 5 seconds, "3m" - 3 minutes).
 		maxIdleTime string
 	}
