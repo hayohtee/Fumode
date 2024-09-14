@@ -7,9 +7,11 @@
     <file url="file://$PROJECT_DIR$/migrations/000005_create_cart_table.up.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/000006_create_payment_table.up.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/000007_create_shipment_table.up.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/migrations/000008_create_order_table.down.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/000008_create_customer_order_table.down.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/000008_create_customer_order_table.up.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/000009_create_order_item_table.down.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/000009_create_order_item_table.up.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/000010_create_review_table.up.sql" dialect="PostgreSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>
