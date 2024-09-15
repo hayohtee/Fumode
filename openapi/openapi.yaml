@@ -50,7 +50,53 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Customer"
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+        400:
+          description: Error in request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+        500:
+          description: Error due to server processing the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: the server encountered a problem and could not process your request
+        422:
+          description: Error validating Customer info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: The error message for the name field
+                        example: must be provided
+                      email:
+                        type: string
+                        description: The error message for the email field
+                        example: must be a valid email address
+                      password:
+                        type: string
+                        description: The error message for the password field
+                        example: must be provided
 
   /customers/login:
     post:
