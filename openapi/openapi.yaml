@@ -11,27 +11,42 @@ servers:
   - url: https://api.fumode.app/v1
 
 tags:
-  - name: User
+  - name: Customer
   - name: Furniture
   - name: Review
   - name: Cart
   - name: Wishlist
 
 paths:
-  /users:
+  /customers:
     post:
-      summary: Register a new user
+      summary: Register a new customer
       tags:
-        - User
+        - Customer
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Customer full name
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  description: Customer email address
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  description: Customer password
+                  example: john$12$4
       responses:
         201:
-          description: User registered successfully
+          description: Customer registered successfully
           content:
             application/json:
               schema:
@@ -87,27 +102,24 @@ paths:
 
 components:
   schemas:
-    User:
+    Customer:
       type: object
       properties:
-        user_id:
+        customer_id:
           type: integer
           minimum: 1
-          description: Unique identifier for the user
+          description: Unique identifier for the customer
         email:
           type: string
           format: email
-          description: User email address
+          description: Customer email address
         name:
           type: string
-          description: The full name of the user
-        password:
-          type: string
-          description: The password of the user
+          description: The full name of the customer
         created_at:
           type: string
           format: time
-          description: The user account creation date
+          description: The customer account creation date
 
     Furniture:
       type: object
