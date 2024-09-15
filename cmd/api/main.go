@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	"github.com/hayohtee/fumode/internal/data"
 	"os"
 
 	"github.com/hayohtee/fumode/internal/jsonlog"
 	"github.com/joho/godotenv"
 )
-
 
 func main() {
 	var cfg config
@@ -45,9 +45,10 @@ func main() {
 	defer db.Close()
 	logger.PrintInfo("database connection pool established", nil)
 
-	app := application {
+	app := application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	err = app.serve()
