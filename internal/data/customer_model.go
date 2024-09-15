@@ -40,7 +40,7 @@ func (c CustomerModel) Insert(customer *Customer) error {
 
 	if err != nil {
 		switch {
-		case err.Error() == `pq: duplicate key value violates unique constraint "customer_email_key"`:
+		case err.Error() == `duplicate key value violates unique constraint "customer_email_key"`:
 			return ErrDuplicateEmail
 		default:
 			return err
