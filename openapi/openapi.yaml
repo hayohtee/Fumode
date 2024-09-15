@@ -50,28 +50,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Customer"
 
-  /users/{user_id}:
-    parameters:
-      - name: user_id
-        in: path
-        required: true
-        schema:
-          type: integer
-    get:
+  /customers/login:
+    post:
       tags:
-        - User
-      summary: Get a specific user
+        - Customer
+      summary: Login a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Customer email address
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  description: Customer password
+                  example: john12$3$4
       responses:
         200:
-          description: User found
+          headers:
+            Authorization:
+              description: JWT token returned as Bearer Token
+              schema:
+                type: string
+          description: Customer logged in successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-        404:
-          description: User not found
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Status message
+                    example: user logged in successfully
+
 
   /users/login:
     post:
