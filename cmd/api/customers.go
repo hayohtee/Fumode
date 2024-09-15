@@ -48,4 +48,18 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 		}
 		return
 	}
+
+	// Launch a goroutine to send welcome email
+	app.background(func() {
+		err = app.mailer.Send(customer.Email, "user_welcome.tmpl", customer)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"customer": customer}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
