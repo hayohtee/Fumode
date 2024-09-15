@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/hayohtee/fumode/internal/data"
+	"github.com/hayohtee/fumode/internal/mailer"
 	"sync"
 
 	"github.com/hayohtee/fumode/internal/jsonlog"
@@ -12,4 +14,6 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	wg     sync.WaitGroup
+	models data.Models
+	mailer mailer.Mailer
 }
