@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/hayohtee/fumode/internal/data"
+	"github.com/hayohtee/fumode/internal/mailer"
 	"os"
 
 	"github.com/hayohtee/fumode/internal/jsonlog"
@@ -45,10 +46,17 @@ func main() {
 	defer db.Close()
 	logger.PrintInfo("database connection pool established", nil)
 
+	client, err := mailer.NewMailClient(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password)
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+	defer client.Close()
+
 	app := application{
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(client, cfg.smtp.sender),
 	}
 
 	err = app.serve()
