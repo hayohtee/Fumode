@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func (c CustomerModel) Insert(customer *Customer) error {
 
 	if err != nil {
 		switch {
-		case err.Error() == `duplicate key value violates unique constraint "customer_email_key"`:
+		case strings.Contains(err.Error(), `duplicate key value violates unique constraint "customer_email_key"`):
 			return ErrDuplicateEmail
 		default:
 			return err
