@@ -89,11 +89,10 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 // http.ResponseWriter, the HTTP status code to send, the data to encode to JSON,
 // and a header map containing additional HTTP headers we want to include in the response.
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
-	js, err := json.MarshalIndent(data, "", "\t")
+	js, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	js = append(js, '\n')
 
 	for key, value := range headers {
 		w.Header()[key] = value
