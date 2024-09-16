@@ -133,38 +133,45 @@ paths:
               schema:
                 type: object
                 properties:
-                  message:
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+        400:
+          description: Error in request body
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The error message
+        422:
+          description: Error validating login info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    description: The error object containing the error message for each field
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        description: The error message for the email field
+                        example: must be provided
+                      password:
+                        type: string
+                        description: The error message for the password field
+                        example: must be provided
+        500:
+          description: Error due to server processing the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
                     type: string
-                    description: Status message
-                    example: user logged in successfully
-
-
-  /users/login:
-    post:
-      tags:
-        - User
-      summary: Login a user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  description: Email address of the user
-                password:
-                  type: string
-                  format: password
-                  description: Password of the user
-      responses:
-        200:
-          description: User login successfully
-        401:
-          description: Invalid credentials
-
+                    description: The error message
+                    example: the server encountered a problem and could not process your request
 
 components:
   schemas:
