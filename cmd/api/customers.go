@@ -89,10 +89,21 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.notFoundResponse(w, r)
+			app.errorResponse(w, r, http.StatusNotFound, "the provided email address could not be found")
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
+		return
+	}
+
+	match, err := customer.Password.Matches(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if !match {
+		app.unauthorizedResponse(w, r)
 		return
 	}
 
