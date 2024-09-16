@@ -3,6 +3,7 @@ module github.com/hayohtee/fumode
 go 1.23.0
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/wneessen/go-mail v0.4.4
