@@ -145,6 +145,17 @@ paths:
                   error:
                     type: string
                     description: The error message
+        401:
+          description: Invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: invalid credentials. Please check your email and password
         404:
           description: Error retrieving customer record
           content:
@@ -155,7 +166,7 @@ paths:
                   error:
                     type: string
                     description: The error message
-                    example: the requested resource could not be found
+                    example: the provided email address could not be found
         422:
           description: Error validating login info
           content:
