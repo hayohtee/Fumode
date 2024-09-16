@@ -16,8 +16,8 @@ type Customer struct {
 	Password    password  `json:"-"`
 	Address     string    `json:"address"`
 	PhoneNumber string    `json:"phone_number"`
+	Role        string    `json:"role"`
 	CreatedAt   time.Time `json:"created_at"`
-	Version     int       `json:"version"`
 }
 
 // password is a struct which contain the plaintext and hashed
@@ -58,7 +58,6 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	}
 	return true, nil
 }
-
 
 func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(email != "", "email", "must be provided")

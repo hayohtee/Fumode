@@ -4,16 +4,74 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/hayohtee/fumode/internal/validator"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Define an envelope type.
 type envelope map[string]any
+
+var (
+	// jwtSecret is a secret string that is used to sign
+	// the jwt token retrieved from the environment variable.
+	jwtSecret = os.Getenv("JWT_SECRET")
+
+	// errInvalidToken is a custom error that is returned when the
+	// provided token is invalid.
+	errInvalidToken = errors.New("invalid token")
+)
+
+// claims is a struct that holds the user defined claims
+// and also embeds jwt.RegisteredClaims
+type claims struct {
+	UserID int64  `json:"user_id"`
+	Role   string `json:"role"`
+	jwt.RegisteredClaims
+}
+
+// generateJWT returns the jwt generated token with userID and role included
+func generateJWT(userID int64, role string) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	payload := &claims{
+		UserID: userID,
+		Role:   role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "http::localhost:4000",
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	return token.SignedString([]byte(jwtSecret))
+}
+
+// validateJWT validate the provided token string using the jwt secret string
+// and returned the claims.
+func validateJWT(token string) (*claims, error) {
+	payload := claims{}
+
+	t, err := jwt.ParseWithClaims(token, &payload, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !t.Valid {
+		return nil, errInvalidToken
+	}
+
+	return &payload, nil
+}
 
 // readIDParam retrieve the "id" URL parameter from the
 // current request, then convert it to an integer (int64)
@@ -31,11 +89,10 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 // http.ResponseWriter, the HTTP status code to send, the data to encode to JSON,
 // and a header map containing additional HTTP headers we want to include in the response.
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
-	js, err := json.MarshalIndent(data, "", "\t")
+	js, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	js = append(js, '\n')
 
 	for key, value := range headers {
 		w.Header()[key] = value
