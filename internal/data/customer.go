@@ -16,6 +16,7 @@ type Customer struct {
 	Password    password  `json:"-"`
 	Address     string    `json:"address"`
 	PhoneNumber string    `json:"phone_number"`
+	Role        string    `json:"role"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
