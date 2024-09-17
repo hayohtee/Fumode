@@ -18,17 +18,6 @@ type Customer struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-func ValidateEmail(v *validator.Validator, email string) {
-	v.Check(email != "", "email", "must be provided")
-	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
-}
-
-func ValidatePasswordPlainText(v *validator.Validator, password string) {
-	v.Check(password != "", "password", "must be provided")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
-}
-
 func ValidateCustomer(v *validator.Validator, customer Customer) {
 	v.Check(customer.Name != "", "name", "must be provided")
 	v.Check(len(customer.Name) <= 500, "name", "must not be more than 500 bytes long")
