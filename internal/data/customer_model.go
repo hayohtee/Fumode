@@ -8,12 +8,6 @@ import (
 	"time"
 )
 
-var (
-	// ErrDuplicateEmail is a custom error that is returned when there
-	// is a duplicate email in the database.
-	ErrDuplicateEmail = errors.New("duplicate email")
-)
-
 // CustomerModel is a type which wraps around a sql.DB connection pool
 // and provide methods for creating and managing customers to and from
 // the database.

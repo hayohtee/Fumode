@@ -13,6 +13,10 @@ var (
 	// ErrEditConflict is a custom error that is returned when two or more
 	// users try to access the same record concurrently.
 	ErrEditConflict = errors.New("edit conflict")
+
+	// ErrDuplicateEmail is a custom error that is returned when there
+	// is a duplicate email in the database.
+	ErrDuplicateEmail = errors.New("duplicate email")
 )
 
 // Models is a container that holds all the database models for this project.
