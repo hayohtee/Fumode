@@ -12,6 +12,7 @@ servers:
 
 tags:
   - name: Customer
+  - name: Admin
   - name: Furniture
   - name: Review
   - name: Cart
@@ -198,6 +199,186 @@ paths:
                     description: The error message
                     example: the server encountered a problem and could not process your request
 
+  /admins:
+    post:
+      summary: Register a new admin
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Admin full name
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  description: Admin email address
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  description: Admin password
+                  example: john$12$4
+      responses:
+        201:
+          description: Admin registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Admin'
+        400:
+          description: Error in request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+        500:
+          description: Error due to server processing the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: the server encountered a problem and could not process your request
+        422:
+          description: Error validating Admin info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: The error message for the name field
+                        example: must be provided
+                      email:
+                        type: string
+                        description: The error message for the email field
+                        example: must be a valid email address
+                      password:
+                        type: string
+                        description: The error message for the password field
+                        example: must be provided
+
+  /admins/login:
+    post:
+      tags:
+        - Admin
+      summary: Login an admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Admin email address
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  description: Admin password
+                  example: john12$3$4
+      responses:
+        200:
+          headers:
+            Authorization:
+              description: JWT token returned as Bearer Token
+              schema:
+                type: string
+          description: Admin logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Admin'
+        400:
+          description: Error in request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+        401:
+          description: Invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: invalid credentials. Please check your email and password
+        404:
+          description: Error retrieving admin record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: the provided email address could not be found
+        422:
+          description: Error validating login info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    description: The error object containing the error message for each field
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        description: The error message for the email field
+                        example: must be provided
+                      password:
+                        type: string
+                        description: The error message for the password field
+                        example: must be provided
+        500:
+          description: Error due to server processing the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: the server encountered a problem and could not process your request
+
 components:
   schemas:
     Customer:
@@ -218,6 +399,38 @@ components:
           type: string
           format: time
           description: The customer account creation date
+        role:
+          type: string
+          description: The role of the customer
+        address:
+          type: string
+          description: The address of the customer
+        phone_number:
+          type: string
+          format: phone number
+          description: The phone number of the customer
+
+    Admin:
+      type: object
+      properties:
+        admin_id:
+          type: integer
+          minimum: 1
+          description: Unique identifier for the admin
+        email:
+          type: string
+          format: email
+          description: Admin email address
+        name:
+          type: string
+          description: The full name of the admin
+        created_at:
+          type: string
+          format: time
+          description: The admin account creation date
+        role:
+          type: string
+          description: The role of the admin
 
     Furniture:
       type: object
