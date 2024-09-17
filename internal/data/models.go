@@ -22,12 +22,14 @@ var (
 // Models is a container that holds all the database models for this project.
 type Models struct {
 	Customers CustomerModel
+	Admins    AdminModel
 }
 
 // NewModels returns a Model which contains all initialized database models
 // for the project.
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Customers: CustomerModel{db},
+		Customers: CustomerModel{DB: db},
+		Admins:    AdminModel{DB: db},
 	}
 }
