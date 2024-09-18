@@ -56,9 +56,7 @@ func generateJWT(userID int64, role string) (string, error) {
 // validateJWT validate the provided token string using the jwt secret string
 // and returned the claims.
 func validateJWT(token string) (*claims, error) {
-	payload := claims{}
-
-	t, err := jwt.ParseWithClaims(token, &payload, func(token *jwt.Token) (interface{}, error) {
+	t, err := jwt.ParseWithClaims(token, &claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
 	})
 
@@ -70,7 +68,12 @@ func validateJWT(token string) (*claims, error) {
 		return nil, errInvalidToken
 	}
 
-	return &payload, nil
+	payload, ok := t.Claims.(*claims)
+	if !ok {
+		panic("unknown claims type, cannot proceed")
+	}
+
+	return payload, nil
 }
 
 // readIDParam retrieve the "id" URL parameter from the
