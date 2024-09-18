@@ -100,7 +100,7 @@ func (app *application) loginAdminHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if !match {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, "invalid credentials. Please check your email and password")
 		return
 	}
 

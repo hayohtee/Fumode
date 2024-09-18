@@ -1,12 +1,19 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
+)
+
+const (
+	AdminRole    = "admin"
+	CustomerRole = "customer"
 )
 
 // recoverPanic is a middleware that recover panics in any http.Handler
@@ -83,4 +90,39 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// authorize is a middleware that authorize the user. It checks for Authorization Header in
+// the request and validates it using the secret jwt key it then extract the role from the
+// user claims and see if it matches the provided role.
+func (app *application) authorize(role string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authorizationHeader := r.Header.Get("Authorization")
+		data := strings.Split(authorizationHeader, " ")
+
+		if len(data) != 2 {
+			w.WriteHeader(http.StatusExpectationFailed)
+			return
+		}
+
+		payload, err := validateJWT(data[0])
+		if err != nil {
+			switch {
+			case errors.Is(err, errInvalidToken):
+				app.unauthorizedResponse(w, r, "invalid or expired token, please authenticate again")
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
+
+		if role == AdminRole {
+			if !strings.EqualFold(payload.Role, AdminRole) {
+				app.forbiddenResponse(w, r, "you do not have permission to access this resource, admin role required")
+				return
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	}
 }
