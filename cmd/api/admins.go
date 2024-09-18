@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/hayohtee/fumode/internal/data"
 	"github.com/hayohtee/fumode/internal/validator"
 	"net/http"
@@ -56,6 +57,62 @@ func (app *application) registerAdminHandler(w http.ResponseWriter, r *http.Requ
 	//})
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"admin": admin}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) loginAdminHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	data.ValidateEmail(v, input.Email)
+	data.ValidatePasswordPlainText(v, input.Password)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	admin, err := app.models.Admins.GetByEmail(input.Email)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.errorResponse(w, r, http.StatusNotFound, "the provided email address could not be found")
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	match, err := admin.Password.Matches(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if !match {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
+	token, err := generateJWT(admin.AdminID, admin.Role)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"admin": admin}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
