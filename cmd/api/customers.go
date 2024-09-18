@@ -103,7 +103,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if !match {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, "invalid credentials. Please check your email and password")
 		return
 	}
 
