@@ -95,8 +95,8 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 // authorize is a middleware that authorize the user. It checks for Authorization Header in
 // the request and validates it using the secret jwt key it then extract the role from the
 // user claims and see if it matches the provided role.
-func (app *application) authorize(role string, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (app *application) authorize(role string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		authorizationHeader := r.Header.Get("Authorization")
 		data := strings.Split(authorizationHeader, " ")
 
@@ -124,5 +124,5 @@ func (app *application) authorize(role string, next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-	})
+	}
 }
