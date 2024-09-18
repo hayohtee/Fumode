@@ -73,7 +73,6 @@ func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http
 }
 
 // unauthorizedResponse sends 401 Unauthorized status code and JSON response
-func (app *application) unauthorizedResponse(w http.ResponseWriter, r *http.Request) {
-	message := "invalid credentials. Please check your email and password"
+func (app *application) unauthorizedResponse(w http.ResponseWriter, r *http.Request, message string) {
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
