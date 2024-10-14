@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS shipment
     state         VARCHAR(100) NOT NULL,
     country       VARCHAR(100) NOT NULL,
     zip_code      VARCHAR(10)  NOT NULL,
-    customer_id   BIGINT REFERENCES customer (customer_id)
+    user_id       BIGINT REFERENCES users (user_id)
 );
