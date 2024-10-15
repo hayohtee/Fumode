@@ -77,3 +77,38 @@ func (u UserRepository) GetByID(userID int64) (User, error) {
 	}
 	return user, nil
 }
+
+// GetByEmail retrieve a specific User from the database given the
+// email address.
+func (u UserRepository) GetByEmail(email string) (User, error) {
+	query := `
+		SELECT user_id, name, email, password, address, phone_number, role, created_at
+		FROM users
+		WHERE email = $1`
+
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := u.DB.QueryRowContext(ctx, query, email).Scan(
+		&user.UserID,
+		&user.Name,
+		&user.Email,
+		&user.Password.hash,
+		&user.Address,
+		&user.PhoneNumber,
+		&user.Role,
+		&user.CreatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return User{}, ErrRecordNotFound
+		default:
+			return User{}, err
+		}
+	}
+	return user, nil
+}
