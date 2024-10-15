@@ -19,17 +19,16 @@ var (
 	ErrDuplicateEmail = errors.New("duplicate email")
 )
 
-// Models is a container that holds all the database models for this project.
-type Models struct {
-	Customers CustomerModel
-	Admins    AdminModel
+// Repositories is a container that holds all the database repositories for this project.
+type Repositories struct {
+	Users UserRepository
 }
 
-// NewModels returns a Model which contains all initialized database models
+// NewRepositories returns a Repositories which contains all initialized repositories for
+// interacting with the database.
 // for the project.
-func NewModels(db *sql.DB) Models {
-	return Models{
-		Customers: CustomerModel{DB: db},
-		Admins:    AdminModel{DB: db},
+func NewRepositories(db *sql.DB) Repositories {
+	return Repositories{
+		Users: UserRepository{DB: db},
 	}
 }
