@@ -19,18 +19,14 @@ import (
 type envelope map[string]any
 
 var (
-	// jwtSecret is a secret string that is used to sign
-	// the jwt token retrieved from the environment variable.
-	jwtSecret = os.Getenv("JWT_SECRET")
-
 	// errInvalidToken is a custom error that is returned when the
 	// provided token is invalid.
 	errInvalidToken = errors.New("invalid token")
 )
 
-// claims is a struct that holds the user defined claims
+// userClaims is a struct that holds the user defined claims
 // and also embeds jwt.RegisteredClaims
-type claims struct {
+type userClaims struct {
 	UserID int64  `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
@@ -39,41 +35,45 @@ type claims struct {
 // generateJWT returns the jwt generated token with userID and role included
 func generateJWT(userID int64, role string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
-	payload := &claims{
+
+	claims := &userClaims{
 		UserID: userID,
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "http::localhost:4000",
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// jwtSecret is a secret string that is used to sign
+	// the jwt token retrieved from the environment variable.
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	if jwtSecret == "" {
+		panic("JWT_SECRET must be set in environment variable")
+	}
 	return token.SignedString([]byte(jwtSecret))
 }
 
 // validateJWT validate the provided token string using the jwt secret string
 // and returned the claims.
-func validateJWT(token string) (*claims, error) {
-	t, err := jwt.ParseWithClaims(token, &claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
+func validateJWT(token string) (userClaims, error) {
+	var claims userClaims
+	t, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
-		return nil, err
+		return userClaims{}, err
 	}
 
 	if !t.Valid {
-		return nil, errInvalidToken
+		return userClaims{}, errInvalidToken
 	}
 
-	payload, ok := t.Claims.(*claims)
-	if !ok {
-		panic("unknown claims type, cannot proceed")
-	}
-
-	return payload, nil
+	return claims, nil
 }
 
 // readIDParam retrieve the "id" URL parameter from the

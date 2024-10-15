@@ -21,7 +21,8 @@ var (
 
 // Repositories is a container that holds all the database repositories for this project.
 type Repositories struct {
-	Users UserRepository
+	Users     UserRepository
+	Furniture FurnitureRepository
 }
 
 // NewRepositories returns a Repositories which contains all initialized repositories for
@@ -29,6 +30,7 @@ type Repositories struct {
 // for the project.
 func NewRepositories(db *sql.DB) Repositories {
 	return Repositories{
-		Users: UserRepository{DB: db},
+		Users:     UserRepository{DB: db},
+		Furniture: FurnitureRepository{DB: db},
 	}
 }
