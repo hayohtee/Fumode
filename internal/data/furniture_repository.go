@@ -69,7 +69,15 @@ func (f FurnitureRepository) Insert(furniture *Furniture) error {
 func (f FurnitureRepository) GetByID(id int64) (Furniture, error) {
 	query := `
 		SELECT 
-			f.furniture_id, f.name, f.description, f.price, f.stock, f.banner_url, f.image_urls, c.name AS category, f.version
+			f.furniture_id, 
+			f.name, 
+			f.description, 
+			f.price, 
+			f.stock, 
+			f.banner_url, 
+			f.image_urls, 
+			c.name AS category, 
+			f.version
 		FROM 
 		    furniture f
 		JOIN category c ON f.category_id = c.category_id
