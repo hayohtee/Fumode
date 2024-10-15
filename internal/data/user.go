@@ -12,8 +12,8 @@ type User struct {
 	Name        string
 	Email       string
 	Password    password
-	Address     string
-	PhoneNumber string
+	Address     *string
+	PhoneNumber *string
 	// Differentiate between types of User (admin, customer)
 	Role      string
 	CreatedAt time.Time
