@@ -6,6 +6,7 @@ import (
 	"github.com/hayohtee/fumode/internal/data"
 	"github.com/hayohtee/fumode/internal/validator"
 	"net/http"
+	"time"
 )
 
 func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,24 +22,25 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	customer := data.Customer{
+	user := data.User{
 		Name:  input.Name,
 		Email: input.Email,
+		Role:  CustomerRole,
 	}
 
-	err = customer.Password.Set(input.Password)
+	err = user.Password.Set(input.Password)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
-	if data.ValidateCustomer(v, customer); !v.Valid() {
+	if data.ValidateUser(v, user); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	err = app.models.Customers.Insert(&customer)
+	err = app.repositories.Users.Insert(&user)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrDuplicateEmail):
@@ -52,14 +54,22 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 
 	// Launch a goroutine to send welcome email
 	app.background(func() {
-		err = app.mailer.Send(customer.Email, "user_welcome.tmpl", customer)
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
 		}
 	})
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"customer": customer}, nil)
+	response := UserResponse{
+		ID:        user.UserID,
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		Role:      user.Role,
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"customer": response}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -85,7 +95,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	customer, err := app.models.Customers.GetByEmail(input.Email)
+	user, err := app.repositories.Users.GetByEmail(input.Email)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -96,7 +106,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	match, err := customer.Password.Matches(input.Password)
+	match, err := user.Password.Matches(input.Password)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -107,15 +117,31 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	token, err := generateJWT(customer.CustomerID, customer.Role)
+	token, err := generateJWT(user.UserID, user.Role)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
+	response := UserResponse{
+		ID:        user.UserID,
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		Role:      user.Role,
+	}
+
 	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	err = app.writeJSON(w, http.StatusOK, envelope{"customer": customer}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"customer": response}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+type UserResponse struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	Role      string    `json:"role"`
 }

@@ -11,9 +11,9 @@ import (
 // application holds the dependencies for the handlers, middlewares
 // and helpers.
 type application struct {
-	config config
-	logger *jsonlog.Logger
-	wg     sync.WaitGroup
-	models data.Models
-	mailer mailer.Mailer
+	config       config
+	logger       *jsonlog.Logger
+	wg           sync.WaitGroup
+	repositories data.Repositories
+	mailer       mailer.Mailer
 }
