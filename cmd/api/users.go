@@ -75,7 +75,7 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 	}
 }
 
-func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -133,6 +133,63 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	err = app.writeJSON(w, http.StatusOK, envelope{"customer": response}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) registerAdminHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user := data.User{
+		Name:  input.Name,
+		Email: input.Email,
+		Role:  AdminRole,
+	}
+
+	err = user.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	if data.ValidateUser(v, user); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.repositories.Users.Insert(&user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddError("email", "a user with this email already exists")
+			app.errorResponse(w, r, http.StatusConflict, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	response := UserResponse{
+		ID:        user.UserID,
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		Role:      user.Role,
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"admin": response}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
