@@ -53,10 +53,10 @@ func main() {
 	defer client.Close()
 
 	app := application{
-		config: cfg,
-		logger: logger,
-		models: data.NewModels(db),
-		mailer: mailer.New(client, cfg.smtp.sender),
+		config:       cfg,
+		logger:       logger,
+		repositories: data.NewRepositories(db),
+		mailer:       mailer.New(client, cfg.smtp.sender),
 	}
 
 	err = app.serve()
