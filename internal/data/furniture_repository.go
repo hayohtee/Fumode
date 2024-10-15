@@ -63,3 +63,41 @@ func (f FurnitureRepository) Insert(furniture *Furniture) error {
 		&furniture.Version,
 	)
 }
+
+// GetByID retrieve a specific furniture record from the database
+// given the id.
+func (f FurnitureRepository) GetByID(id int64) (Furniture, error) {
+	query := `
+		SELECT 
+			f.furniture_id, f.name, f.description, f.price, f.stock, f.banner_url, f.image_urls, c.name AS category, f.version
+		FROM 
+		    furniture f
+		JOIN category c ON f.category_id = c.category_id
+		WHERE f.furniture_id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var furniture Furniture
+	err := f.DB.QueryRowContext(ctx, query, id).Scan(
+		&furniture.FurnitureID,
+		&furniture.Name,
+		&furniture.Description,
+		&furniture.Price,
+		&furniture.Stock,
+		&furniture.BannerURL,
+		&furniture.ImageURLs,
+		&furniture.Category,
+		&furniture.Version,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return Furniture{}, ErrRecordNotFound
+		default:
+			return Furniture{}, err
+		}
+	}
+	return furniture, nil
+}
