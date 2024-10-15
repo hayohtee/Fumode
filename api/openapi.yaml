@@ -54,7 +54,7 @@ paths:
                 type: object
                 properties:
                   customer:
-                    $ref: '#/components/schemas/Customer'
+                    $ref: '#/components/schemas/CreateCustomerResponse'
         400:
           description: Error in request body
           content:
@@ -381,10 +381,10 @@ paths:
 
 components:
   schemas:
-    Customer:
+    CreateCustomerResponse:
       type: object
       properties:
-        customer_id:
+        id:
           type: integer
           minimum: 1
           description: Unique identifier for the customer
@@ -402,13 +402,6 @@ components:
         role:
           type: string
           description: The role of the customer
-        address:
-          type: string
-          description: The address of the customer
-        phone_number:
-          type: string
-          format: phone number
-          description: The phone number of the customer
 
     Admin:
       type: object
