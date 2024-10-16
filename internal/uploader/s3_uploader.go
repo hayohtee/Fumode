@@ -106,3 +106,32 @@ func (u *S3Uploader) UploadImages(ctx context.Context, files []*multipart.FileHe
 	}
 	return urls, nil
 }
+
+// UploadImage uploads a single image file to S3 bucket.
+func (u *S3Uploader) UploadImage(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
+	file, err := fileHeader.Open()
+	if err != nil {
+		return "", fmt.Errorf("unable to open file: %v", err)
+	}
+	defer file.Close()
+
+	filename, err := generateUniqueFilename(fileHeader.Filename, fileHeader.Header.Get("Content-Type"))
+	if err != nil {
+		return "", fmt.Errorf("unable to generate unique filename: %v", err)
+	}
+
+	_, err = u.uploader.Upload(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(u.bucket),
+		Key:         aws.String(filename),
+		Body:        file,
+		ContentType: aws.String(fileHeader.Header.Get("Content-Type")),
+		ACL:         types.ObjectCannedACLPublicRead,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("unable to upload image: %v", err)
+	}
+
+	url := fmt.Sprintf("https://s3.amazonaws.com/%s/%s", u.bucket, filename)
+	return url, nil
+}
