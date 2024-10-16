@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/hayohtee/fumode/internal/data"
 	"github.com/hayohtee/fumode/internal/mailer"
+	"github.com/hayohtee/fumode/internal/uploader"
 	"os"
 
 	"github.com/hayohtee/fumode/internal/jsonlog"
@@ -11,7 +12,7 @@ import (
 )
 
 func main() {
-	var cfg config
+	var cfg configuration
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	err := godotenv.Load(".env")
@@ -52,11 +53,17 @@ func main() {
 	}
 	defer client.Close()
 
+	s3Uploader, err := uploader.NewS3Uploader(os.Getenv("AWS_BUCKET_NAME"))
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+
 	app := application{
 		config:       cfg,
 		logger:       logger,
 		repositories: data.NewRepositories(db),
 		mailer:       mailer.New(client, cfg.smtp.sender),
+		s3Uploader:   s3Uploader,
 	}
 
 	err = app.serve()
