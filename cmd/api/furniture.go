@@ -60,6 +60,7 @@ func (app *application) createFurnitureHandler(w http.ResponseWriter, r *http.Re
 		Description: description,
 		Price:       price,
 		Stock:       int(stock),
+		Category:    category,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
