@@ -13,7 +13,7 @@ func (app *application) createFurnitureHandler(w http.ResponseWriter, r *http.Re
 	// Parse the multipart form with a 10 MB max memory limit
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.errorResponse(w, r, http.StatusUnprocessableEntity, "must be a multipart form")
 		return
 	}
 
@@ -62,7 +62,7 @@ func (app *application) createFurnitureHandler(w http.ResponseWriter, r *http.Re
 		Stock:       int(stock),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	bannerUrl, err := app.s3Uploader.UploadImage(ctx, bannerHeader)
 	if err != nil {
