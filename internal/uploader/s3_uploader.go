@@ -86,8 +86,7 @@ func (u *S3Uploader) UploadImages(ctx context.Context, files []*multipart.FileHe
 				return
 			}
 
-			url := fmt.Sprintf("https://s3.amazonaws.com/%s/%s", u.bucket, filename)
-
+			url := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", u.bucket, filename)
 			mu.Lock()
 			urls = append(urls, url)
 			mu.Unlock()
@@ -124,6 +123,6 @@ func (u *S3Uploader) UploadImage(ctx context.Context, fileHeader *multipart.File
 		return "", fmt.Errorf("unable to upload image: %v", err)
 	}
 
-	url := fmt.Sprintf("https://s3.amazonaws.com/%s/%s", u.bucket, filename)
+	url := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", u.bucket, filename)
 	return url, nil
 }
