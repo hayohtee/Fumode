@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func openDB(cfg config) (*sql.DB, error) {
+func openDB(cfg configuration) (*sql.DB, error) {
 	db, err := sql.Open("pgx", cfg.db.dsn)
 	if err != nil {
 		return nil, err
