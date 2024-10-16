@@ -1,17 +1,22 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/hayohtee/fumode/internal/data"
 	"github.com/hayohtee/fumode/internal/mailer"
 	"os"
+
+	"github.com/aws/aws-sdk-go-v2/config"
 
 	"github.com/hayohtee/fumode/internal/jsonlog"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	var cfg config
+	var cfg configuration
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	err := godotenv.Load(".env")
@@ -52,11 +57,24 @@ func main() {
 	}
 	defer client.Close()
 
+	awsConfig, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(os.Getenv("AWS_ACCESS_KEY"),
+				os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
+		),
+	)
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+
 	app := application{
 		config:       cfg,
 		logger:       logger,
 		repositories: data.NewRepositories(db),
 		mailer:       mailer.New(client, cfg.smtp.sender),
+		s3Client:     s3.NewFromConfig(awsConfig),
 	}
 
 	err = app.serve()
