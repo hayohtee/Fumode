@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"github.com/hayohtee/fumode/internal/validator"
 	"time"
 )
@@ -12,8 +13,8 @@ type User struct {
 	Name        string
 	Email       string
 	Password    password
-	Address     *string
-	PhoneNumber *string
+	Address     sql.NullString
+	PhoneNumber sql.NullString
 	// Differentiate between types of User (admin, customer)
 	Role      string
 	CreatedAt time.Time
