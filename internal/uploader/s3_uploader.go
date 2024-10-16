@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"time"
 
 	"mime/multipart"
 	"os"
@@ -68,14 +69,8 @@ func (u *S3Uploader) UploadImages(ctx context.Context, files []*multipart.FileHe
 				return
 			}
 			defer file.Close()
-			filename, err := generateUniqueFilename(fh.Filename, fh.Header.Get("Content-Type"))
-			if err != nil {
-				mu.Lock()
-				errs = append(errs, err)
-				mu.Unlock()
-				return
-			}
 
+			filename := fmt.Sprintf("%d-%s", time.Now().Unix(), fh.Filename)
 			_, err = u.uploader.Upload(ctx, &s3.PutObjectInput{
 				Bucket:      aws.String(u.bucket),
 				Key:         aws.String(filename),
@@ -115,10 +110,7 @@ func (u *S3Uploader) UploadImage(ctx context.Context, fileHeader *multipart.File
 	}
 	defer file.Close()
 
-	filename, err := generateUniqueFilename(fileHeader.Filename, fileHeader.Header.Get("Content-Type"))
-	if err != nil {
-		return "", fmt.Errorf("unable to generate unique filename: %v", err)
-	}
+	filename := fmt.Sprintf("%d-%s", time.Now().Unix(), fileHeader.Filename)
 
 	_, err = u.uploader.Upload(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(u.bucket),
