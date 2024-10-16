@@ -1,7 +1,7 @@
 package main
 
-// config holds all the configuration settings for the app.
-type config struct {
+// configuration holds all the configuration settings for the app.
+type configuration struct {
 	// The network port the server is listening on.
 	port int
 	// The current operating environment for the application
