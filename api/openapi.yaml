@@ -380,7 +380,7 @@ paths:
                     example: the server encountered a problem and could not process your request
   /furniture:
     post:
-      description: Create a new furniture (Admin only)
+      summary: Create a new furniture (Admin only)
       security:
         - bearerAuth: [ ]
       tags:
