@@ -447,12 +447,40 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: The error message
-                    example: must be a multipart/form-data
+                oneOf:
+                  - type: object
+                    properties:
+                      error:
+                       type: string
+                       description: The error message
+                       example: must be a multipart/form-data
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Validation error message for name
+                        example: must be provided
+                      description:
+                        type: string
+                        description: Validation error message for description
+                        example: must be provided
+                      price:
+                        type: string
+                        description: Validation error message for price field
+                        example: must be provided
+                      stock:
+                        type: string
+                        description: Validation error message for stock field
+                        example: must be provided
+                      banner:
+                        type: string
+                        description: Validation error message for banner field
+                        example: must be a valid file
+                      images:
+                        type: string
+                        description: Validation error message for banner field
+                        example: must contains at least one image
+
         500:
           description: Error due to server processing the request
           content:
