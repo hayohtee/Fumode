@@ -378,8 +378,99 @@ paths:
                     type: string
                     description: The error message
                     example: the server encountered a problem and could not process your request
+  /furniture:
+    post:
+      description: Create a new furniture (Admin only)
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Furniture
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the furniture
+                  example: Modern sofa
+                description:
+                  type: string
+                  description: The description of the furniture
+                  example: |
+                    A stylish and comfortable three-seater sofa made with high-quality fabric. 
+                    It comes with extra soft cushions and a sleek wooden frame, perfect for modern living rooms.
+                price:
+                  type: number
+                  minimum: 0
+                  description: The price of the furniture in USD
+                  example: 799.99
+                stock:
+                  type: integer
+                  minimum: 0
+                  description: The number of stock
+                  example: 15
+                category:
+                  type: string
+                  description: The category of the furniture
+                  example: Living room furniture
+                banner:
+                  type: string
+                  format: binary
+                  description: The furniture banner image
+                  example: "https://s3.amazonaws.com/bucketname/image1.jpg"
+                images:
+                  type: array
+                  description: The images for the furniture
+                  items:
+                    type: string
+                    format: binary
+                    example:
+                      - "https://s3.amazonaws.com/bucketname/image1.jpg"
+                      - "https://s3.amazonaws.com/bucketname/image2.jpg"
+      responses:
+        201:
+          description: A new furniture is created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The response message
+                    example: furniture was created successfully
+        422:
+          description: The request body cannot be processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: must be a multipart/form-data
+        500:
+          description: Error due to server processing the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: the server encountered a problem and could not process your request
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     UserResponse:
       type: object
